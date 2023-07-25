@@ -1,0 +1,91 @@
+1.Write a script to extracts all the numerics from Alphanumeric String
+Solution query:
+create function aN(@stg varchar(20))
+returns varchar(20)
+as 
+begin
+declare @input int= patindex('%[^0-9]%',@stg)
+ begin 
+  while @input>0
+   begin 
+    set @stg=stuff(@stg,@input,1,'')
+	set @input=patindex('%[^0-9]%',@stg)
+   end
+end
+return @stg
+end
+select dbo.aN(email) from season 
+select dbo.aN('ramu2405') as numbers
+********************************************************************
+2.Write a script to calculate age based on the Input DOB
+
+create function CalcA(@dob date)
+returns int
+as 
+begin
+declare @age int
+set @age=datediff(year,@dob,getdate())
+return @age
+end
+Select  dbo.CalcA('11-09-2001') as 'AGE'
+Select  dbo.CalcA('05-08-2000') as 'AGE'
+select*from physical
+select ename,dob,dbo.calcA(dob) as age from physical
+******************************************************************
+3.Create a column in a table and that should throw an error when we do SELECT * or SELECT of that column. If we select other columns then we should see results
+Solution Query:
+create table liar 
+(
+id int,
+name varchar(20),
+marks int,
+val as 1*'a'
+)
+******************************************************************
+4.Display Calendar Table based on the input year. If I give the year 2017 then populate data for 2017 only.
+Date e.g.1/1/2017
+DayofYear 1 – 365/366 (Note 1)
+Week 1-52/53
+DayofWeek 1-7
+Month 1-12
+DayofMonth 1-30/31 (Note 2)
+Note 1: DayofYear varies depending on the number of days in the given year.
+Note 2: DayofMonth varies depending on number of days in the given month.
+Weekly calculations are always for a 7 day period Sunday to Saturday.
+
+Solution Query:
+DECLARE @inputYear INT = 2017;
+WITH DateCTE AS (
+    SELECT DATEFROMPARTS(@inputYear, 1, 1) AS CurrentDate
+    UNION ALL
+    SELECT DATEADD(DAY, 1, CurrentDate)
+    FROM DateCTE
+    WHERE YEAR(DATEADD(DAY, 1, CurrentDate)) = @inputYear
+),
+CalendarCTE AS (
+    SELECT
+        CurrentDate AS Date,
+        DATEPART(DAYOFYEAR, CurrentDate) AS Day_Of_Year,
+        DATEPART(WEEK, CurrentDate) AS Week,
+        DATEPART(WEEKDAY, CurrentDate) AS Day_Of_Week,
+        DATEPART(MONTH, CurrentDate) AS Month,
+        DATEPART(DAY, CurrentDate) AS Day_Of_Month
+    FROM DateCTE
+)
+SELECT *
+FROM CalendarCTE 
+option (maxrecursion 365)
+***********************************************************************
+5.Display Emp and Manager Hierarchies based on the input till the topmost hierarchy. (Input would be empid)
+Output: Empid, empname, managername, heirarchylevel
+
+Solution Query:
+with exp(e_id,e_name,m_name,h_level)
+as
+(select e_id,e_name,m_name,1 as h_level from hlevel
+where m_name is null
+union all
+select hlevel.e_id,hlevel.e_name,hlevel.m_name,h_level+1 from hlevel
+inner join 
+exp on hlevel.m_name=exp.e_name)
+select *from exp where e_id=2
