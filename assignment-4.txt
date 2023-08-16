@@ -1,0 +1,57 @@
+1.Write a query to find the all the names which are similar in pronouncing as suresh, sort the result in the order of similarity.
+
+Solution query:
+select c_name 
+ from customer 
+  where c_name like '%esh'
+******************************************************************************************
+2 write a query to find second highest salary in organisation without using subqueries and top.
+Solution query :
+Method-01:
+select distinct salary from physical
+ order by salary desc
+ offset 1 row fetch next 1 row only
+
+method-02:
+SELECT e1.id, e1.ename, e1.Salary
+FROM physical e1, physical e2
+WHERE e1.Salary < e2.Salary
+ORDER BY e1.Salary desc
+OFFSET 0 ROWS
+FETCH NEXT 1 ROWS ONLY;
+*****************************************************************************************
+3.write a query to find max salary and dep name from all the dept with out using top and limit
+Solution query:
+select dept.d_id, dept.d_name,max(emp.e_Salary) as maximum_salaries
+ from dept,emp 
+ where emp.d_id=dept.d_id
+  group by dept.d_id,d_name 
+  order by dept.d_id 
+******************************************************************************************
+--4.Write a SQL query to maximum number from a table without using MAX or MIN aggregate functions.
+--Consider the numbers as mentioned below:
+--7859
+--6897
+--9875
+--8659
+--7600
+--7550
+create table findMax
+(
+city varchar(20),
+pincode int
+)
+insert into findmax values('Texas',7859),('Austria',6897),('California',9875),('Florida',8659),('Miami',7600),('Chile',7550)
+select *from findmax
+
+select city,pincode from findmax order by pincode desc
+offset 0 row fetch first 1 row only 
+********************************************************************************************
+---5.Write an SQL query to fetch all the Employees who are also managers from the EmployeeDetails table.
+Solution queries:
+method-01:
+select distinct e.e_name from emp e ,emp m
+where e.e_id=m.m_id
+method-02:
+select distinct e_name from emp 
+where e_id in (select m_id from emp)
